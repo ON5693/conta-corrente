@@ -60,16 +60,6 @@ Datas e IDs das respostas acima são ilustrativos. Datas novas são UTC/ISO 8601
 
 Erros têm o formato `{ "type": "INVALID_ACCOUNT", "message": "A conta corrente não existe." }`.
 
-## Decisões e garantias
-
-- A identificação pública é `idcontacorrente`, um UUID, e não o número. Os IDs são normalizados, permitindo diferenças de caixa e formatação de UUID. `requestId` também é UUID não vazio.
-- Uma transação `BEGIN IMMEDIATE` adquire o bloqueio de escrita **antes** da consulta da chave. Escritores concorrentes aguardam até 30 segundos e então consultam o resultado já confirmado. Movimento e idempotência são inseridos na mesma transação; falhas e cancelamento antes do commit revertem ambos. A chave primária continua sendo uma proteção adicional. Não depende de bloqueios em memória ou de uma única instância da API.
-- Repetições retornam o movimento original, inclusive se a conta tiver sido desativada depois. Chave reutilizada com conta, valor ou tipo diferente retorna 409. Valores numericamente equivalentes (`100` e `100.00`) são a mesma requisição; valores diferentes antes do arredondamento causam conflito, mesmo quando produziriam os mesmos centavos.
-- Tentativas inválidas não persistem a chave e podem ser corrigidas e reenviadas. Débitos podem produzir saldo negativo, pois a especificação não exige limite ou saldo disponível.
-- Valores usam `decimal`, com arredondamento de duas casas `AwayFromZero` (`0.005` vira `0.01`). Valores que resultam em zero são rejeitados. O máximo por movimento é `999999999999.99`, para manter centavos representáveis no `REAL` legado. A consulta converte cada valor em centavos inteiros antes de acumular em `decimal`, evitando somas em ponto flutuante e overflow de `SUM` inteiro no SQLite. O saldo é uma leitura consistente de conta e movimentos na mesma transação. O número JSON pode omitir zeros à direita sem alterar a precisão monetária.
-- A migração transacional corrige `movimento.idcontacorrente` de `INTEGER` para `TEXT`, preservando movimentos, valores e datas; corrige o espaço no ID da conta 123 e suas referências. Registros existentes de idempotência são preservados. Chaves estrangeiras são habilitadas por conexão e verificadas no bootstrap; dados órfãos impedem a inicialização e revertem a migração. Foi criado um índice de movimentos por conta.
-- A API mantém as três tabelas da especificação. Para volumes maiores, vale planejar uma migração versionada para centavos inteiros e cálculo agregado no banco; a implementação atual lê os centavos de todos os movimentos da conta.
-
 ## Contas de exemplo
 
 | Número | UUID | Titular | Ativa |
