@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+.vs/
+TestResults/
+*.csproj.user
+*.sqlite-wal
+*.sqlite-shm
