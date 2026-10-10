@@ -1,4 +1,4 @@
-# API bancária — Questão 5
+# API bancária — Conta Corrente
 
 Implementação da [especificação](Questao5/Questão%205%20-%20Especificação%20da%20API%20Bancária.md), com ASP.NET Core, CQRS/MediatR, Dapper e SQLite. Requer SDK .NET 10 (LTS); o projeto original usava .NET 6, já fora de suporte. As dependências de testes ficam no projeto separado `Questao5.Tests`.
 
